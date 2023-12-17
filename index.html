@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maze Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <header>
+      <a href="">Maze Generator</a>
+      <div class="toggle">
+        <input type="checkbox" id="toggleButton" />
+        <label for="toggleButton"></label>
+      </div>
+    </header>
+    <div class="algos">
+      <aside>
+        <div class="control">
+          <label for="number">Size</label>
+          <input type="range" id="number" min="10" max="100" />
+        </div>
+        <div class="control">
+          <label for="speed">Speed</label>
+          <input type="range" id="speed" min="0" max="500" step="20" />
+        </div>
+      </aside>
+      <div>
+        <span id="bidirectional">Bidirectional</span>
+        <span id="dfs">DFS</span>
+        <span id="bfs">BFS</span>
+        <span id="generate">Generate Maze</span>
+        <span id="clear">Clear Maze</span>
+        
+      </div>
+    </div>
+    <div class="wrapper" id="wrapper">
+      <!-- <div class="content"></div> -->
+      <div class="grid">
+        <!-- <div>
+          <span id="_00">1</span>
+          <span id="_01">2</span>
+          <span id="_02">3</span>
+          <span id="_02">3</span>
+          <span id="_02">3</span>
+          <span id="_02">3</span>
+          <span id="_02">3</span>
+          <span id="_02">3</span>
+          <span id="_02">3</span>
+          <span id="_02">3</span>
+        </div>
+        <div>
+            <span id="_00">1</span>
+            <span id="_01">2</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+        </div>
+        <div>
+            <span id="_00">1</span>
+            <span id="_01">2</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+        </div>
+        <div>
+            <span id="_00">1</span>
+            <span id="_01">2</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+        </div>
+        <div>
+            <span id="_00">1</span>
+            <span id="_01">2</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+        </div>
+        <div>
+            <span id="_00">1</span>
+            <span id="_01">2</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+            <span id="_02">3</span>
+        </div> -->
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
