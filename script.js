@@ -19,9 +19,13 @@ let start = undefined;
 let end = undefined;
 let bidirectionalMeet = [];
 let lastRunAlgo = null;
+let draggedElementId = null;
+let running = false;
 // let showWalls = false;
 
 function resetGraph(all = false) {
+    if(running) return;
+    lastRunAlgo = null;
     for(let i=0;i<rowsNumber;i++) {
         vis[i] = [];
         par[i] = [];
@@ -62,39 +66,61 @@ toggleButton.addEventListener("click", function () {
 })
 
 generateButton.addEventListener("click", async function () {
+    if(running) return;
+    // console.log("here")
     resetGraph(true);
+    // running = true;
     showWalls();
     generateMaze(0, 0);
     await generateMaze(0, 0);
     // await generateMaze(0, 0);
+    // running = false;
     resetGraph();
 })
 
-dfsButton.addEventListener("click", async function () {
+async function dfsFn(startx = start[0], starty = start[1], endx = end[0], endy = end[1], latency = true) {
+    if(running) return;
     resetGraph();
-    let found = await dfs(start[0], start[1], end[0], end[1]);
+    running = true;
+    // console.log(latency);
+    let found = await dfs(startx, starty, endx, endy, latency);
     // console.log(par)
-    if(found) visualizePath(start[0], start[1], end[0], end[1]);
+    if(found) await visualizePath(startx, starty, endx, endy, latency);
+    running = false;
+}
+
+dfsButton.addEventListener("click", async function() {
+    dfsFn();
 })
 
-bfsButton.addEventListener("click", async function () {
+async function bfsFn(startx = start[0], starty = start[1], endx = end[0], endy = end[1], latency = true) {
+    if(running) return;
     resetGraph();
-    let found = await bfs(start[0], start[1], end[0], end[1]);
+    running = true;
+    let found = await bfs(startx, starty, endx, endy, latency);
     // console.log(par)
-    if(found) visualizePath(start[0], start[1], end[0], end[1]);
+    if(found) await visualizePath(startx, starty, endx, endy, latency);
+    running = false;
+}
+
+bfsButton.addEventListener("click", async function() {
+    bfsFn();
 })
 
 async function bidirectionalFn(startx = start[0], starty = start[1], endx = end[0], endy = end[1], latency = true) {
+    if(running) return;
     resetGraph();
+    running = true;
     // console.log(start,end)
     // console.log(vis);
     // console.log(startx, start[0]);
     let found = await bidirectional(startx, starty, endx, endy, latency);
     // console.log(par)
     // console.log(bidirectionalMeet);
-    console.log(startx, starty, bidirectionalMeet[0], bidirectionalMeet[1], latency)
+    // console.log(startx, starty, bidirectionalMeet[0], bidirectionalMeet[1], latency)
     if(found) await visualizePath(startx, starty, bidirectionalMeet[0], bidirectionalMeet[1], latency);
     if(found) await visualizePathReverse(endx, endy, bidirectionalMeet[0], bidirectionalMeet[1], par1, latency);
+    running = false;
 }
 
 bidirectionalButton.addEventListener("click", async function() {
@@ -115,6 +141,8 @@ function showWalls() {
 
 function resetGrid() {
     // console.log(grid)
+    running = false;
+    // if(running) return;
     grid.innerHTML = "";
     colsNumber = Math.ceil(window.innerWidth / 50);
     rowsNumber = Math.ceil((window.innerHeight - grid.getBoundingClientRect().top - 100) / 42);
@@ -132,8 +160,10 @@ function resetGrid() {
             // console.log(j);
             let newCell = document.createElement("span");
             // ondrop="drop(event)" ondragover="allowDrop(event)"
-            newCell.setAttribute("ondrop", "drop(event)");
-            newCell.setAttribute("ondragover", "allowDrop(event)");
+            // newCell.setAttribute("ondrop", "drop(event)");
+            // newCell.setAttribute("ondragover", "allowDrop(event)");
+
+            newCell.setAttribute("ondragenter", "dragEnter(event)");
 
             if(i == start[0] && j == start[1]) {
                 let img = document.createElement("img");
@@ -195,6 +225,7 @@ function clear() {
 }
 
 async function generateMaze(x, y) {
+    running = true;
     await new Promise(resolve => setTimeout(resolve, 10));
     // console.log(x, y);
     vis[x][y] = 1;
@@ -230,10 +261,10 @@ async function generateMaze(x, y) {
     //         grid.childNodes[i].childNodes[j].classList.add("verticalBar", "horizontalBar");
     //     }
     // }
-    
+    running = false;
 }
 
-async function visualizePath(x, y, currx, curry, latency) {
+async function visualizePath(x, y, currx, curry, latency = true) {
     // console.log(currx, curry, par[currx]);
     if(x != currx || y != curry) {
        await visualizePath(x, y, par[currx][curry][0], par[currx][curry][1], latency);
@@ -252,18 +283,20 @@ async function visualizePathReverse(x, y, currx, curry, par, latency) {
     // grid.childNodes[x].childNodes[y].style.background = "yellow";
 }
 
-async function dfs(x, y, distx, disty) {
+async function dfs(x, y, distx, disty, latency = true) {
+    lastRunAlgo = dfsFn;
     vis[x][y] = 1;
     // grid.childNodes[x].childNodes[y].style.background = "#20bf70";//2595f9
     grid.childNodes[x].childNodes[y].classList.add("visited");
-    await new Promise(resolve => setTimeout(resolve, 0));
+    // console.log(latency);
+    if(latency) await new Promise(resolve => setTimeout(resolve, 0));
     if(x == distx && y == disty) return true;
     
     for(let i=0;i<g[x][y].length;i++) {
         // console.log(g[x][y][i]);
         if(!vis[g[x][y][i][0]][g[x][y][i][1]]) {
             par[g[x][y][i][0]][g[x][y][i][1]] = [x, y];
-            let found = await dfs(g[x][y][i][0], g[x][y][i][1], distx, disty);
+            let found = await dfs(g[x][y][i][0], g[x][y][i][1], distx, disty, latency);
             if(found) return true;
         }
     }
@@ -274,7 +307,8 @@ async function dfs(x, y, distx, disty) {
     return false;
 }
 
-async function bfs(x, y, distx, disty) {
+async function bfs(x, y, distx, disty, latency = true) {
+    lastRunAlgo = bfsFn;
     // console.log(x, y, distx, disty);
     vis[x][y] = 1;
     grid.childNodes[x].childNodes[y].classList.add("visited");
@@ -282,7 +316,7 @@ async function bfs(x, y, distx, disty) {
     queue.push([x, y]);
     while(queue.length) {
         let front = queue.splice(0, 1);
-        await new Promise(resolve => setTimeout(resolve, 0));
+        if(latency) await new Promise(resolve => setTimeout(resolve, 0));
         // console.log(front)
         x = front[0][0];
         y = front[0][1];
@@ -303,7 +337,7 @@ async function bfs(x, y, distx, disty) {
 
 async function bidirectional(x, y, distx, disty, latency = true) {
     lastRunAlgo = bidirectionalFn;
-    console.log(lastRunAlgo)
+    // console.log(lastRunAlgo)
     let vis1 = [];
     par1 = [];
     for(let i=0;i<rowsNumber;i++) {
@@ -313,7 +347,7 @@ async function bidirectional(x, y, distx, disty, latency = true) {
         //     vis1[i][j] = [];
         // }
     }
-    console.log(start, distx, disty)
+    // console.log(start, distx, disty)
     vis[x][y] = 1;
     // console.log(vis1);
     vis1[distx][disty] = 1;
@@ -364,6 +398,8 @@ async function bidirectional(x, y, distx, disty, latency = true) {
 }
 
 function drag(ev) {
+    if(ev.target.id) draggedElementId = ev.target.id;
+    // console.log(draggedElementId);
     ev.dataTransfer.setData("text/plain", ev.target.id);
 }
 
@@ -371,33 +407,77 @@ function dragEnd(ev) {
     const draggedElement = document.getElementById(ev.target.id);
 }
 
-function allowDrop(ev) {
-    ev.preventDefault();
-    const data = ev.dataTransfer.getData("text/plain");
-    const draggedElement = document.getElementById(data);
-}
+// function allowDrop(ev) {
+//     ev.preventDefault();
+//     const data = ev.dataTransfer.getData("text/plain");
+//     const draggedElement = document.getElementById(data);
+// }
 
-function drop(ev) {
+// function drop(ev) {
+    // // console.log(ev);
+    // ev.preventDefault();
+    // const data = ev.dataTransfer.getData("text/plain");
+    // const draggedElement = document.getElementById(data);
+    // if (ev.target.childNodes.length === 0 && ev.target.tagName.toLowerCase() !== 'img') {
+    //     // console.log(ev.target);
+    //     // console.log(data, draggedElement)
+    //     ev.target.appendChild(draggedElement);
+    //     // console.log(ev.target);
+    //     for(let i=0;i<rowsNumber;i++) {
+    //         for(let j=0;j<colsNumber;j++) {
+    //             if(grid.childNodes[i].childNodes[j] == ev.target) {
+    //                 if(data === "location") {
+    //                     end = [i, j];
+    //                     if(lastRunAlgo) {
+    //                         // console.log(start[0], start[1], end[0], end[1], false)
+    //                         lastRunAlgo(start[0], start[1], end[0], end[1], false);
+    //                     }
+    //                 }
+    //                 else {
+    //                     start = [i, j];
+    //                     if(lastRunAlgo) {
+    //                         // console.log(start[0], start[1], end[0], end[1], false)
+    //                         lastRunAlgo(start[0], start[1], end[0], end[1], false);
+    //                     }
+    //                 }
+    //                 // resetGraph();
+    //             }
+    //         }
+    //     }
+    // }
+// }
+
+function dragEnter(ev) {
+    // allowDrop(ev);
     ev.preventDefault();
-    const data = ev.dataTransfer.getData("text/plain");
-    const draggedElement = document.getElementById(data);
+    drag(ev);
+    // const data = ev.dataTransfer.getData("text/plain");
+    const data = ev.target;
+    // console.log(ev.target);
+    // const draggedElement = document.getElementById(data);
+    // console.log(draggedElementId);
+    const draggedElement = document.getElementById(draggedElementId);
+    // console.log(draggedElement)
     if (ev.target.childNodes.length === 0 && ev.target.tagName.toLowerCase() !== 'img') {
+        // console.log(ev.target);
+        // console.log(draggedElement)
+        // console.log(draggedElementId);
+        // console.log(ev.target)
         ev.target.appendChild(draggedElement);
-        console.log(ev.target);
         for(let i=0;i<rowsNumber;i++) {
             for(let j=0;j<colsNumber;j++) {
                 if(grid.childNodes[i].childNodes[j] == ev.target) {
-                    if(data === "location") {
+                    if(draggedElementId === "location") {
                         end = [i, j];
                         if(lastRunAlgo) {
-                            console.log(start[0], start[1], end[0], end[1], false)
+                            // console.log(start[0], start[1], end[0], end[1], false)
                             lastRunAlgo(start[0], start[1], end[0], end[1], false);
                         }
                     }
                     else {
                         start = [i, j];
                         if(lastRunAlgo) {
-                            console.log(start[0], start[1], end[0], end[1], false)
+                            // console.log(start[0], start[1], end[0], end[1], false)
                             lastRunAlgo(start[0], start[1], end[0], end[1], false);
                         }
                     }
@@ -406,7 +486,8 @@ function drop(ev) {
             }
         }
     }
-}
+    // console.log(start, end)
+  }
 
 clear();
 window.onresize = clear;
