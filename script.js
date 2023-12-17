@@ -18,6 +18,7 @@ let par1 = [];
 let start = undefined;
 let end = undefined;
 let bidirectionalMeet = [];
+let lastRunAlgo = null;
 // let showWalls = false;
 
 function resetGraph(all = false) {
@@ -83,13 +84,21 @@ bfsButton.addEventListener("click", async function () {
     if(found) visualizePath(start[0], start[1], end[0], end[1]);
 })
 
-bidirectionalButton.addEventListener("click", async function () {
+async function bidirectionalFn(startx = start[0], starty = start[1], endx = end[0], endy = end[1], latency = true) {
     resetGraph();
-    let found = await bidirectional(start[0], start[1], end[0], end[1]);
+    // console.log(start,end)
+    // console.log(vis);
+    // console.log(startx, start[0]);
+    let found = await bidirectional(startx, starty, endx, endy, latency);
     // console.log(par)
     // console.log(bidirectionalMeet);
-    if(found) await visualizePath(start[0], start[1], bidirectionalMeet[0], bidirectionalMeet[1]);
-    if(found) await visualizePathReverse(end[0], end[1], bidirectionalMeet[0], bidirectionalMeet[1], par1);
+    console.log(startx, starty, bidirectionalMeet[0], bidirectionalMeet[1], latency)
+    if(found) await visualizePath(startx, starty, bidirectionalMeet[0], bidirectionalMeet[1], latency);
+    if(found) await visualizePathReverse(endx, endy, bidirectionalMeet[0], bidirectionalMeet[1], par1, latency);
+}
+
+bidirectionalButton.addEventListener("click", async function() {
+    bidirectionalFn();
 })
 
 clearButton.addEventListener("click", function () {
@@ -224,20 +233,21 @@ async function generateMaze(x, y) {
     
 }
 
-async function visualizePath(x, y, currx, curry) {
+async function visualizePath(x, y, currx, curry, latency) {
+    // console.log(currx, curry, par[currx]);
     if(x != currx || y != curry) {
-       await visualizePath(x, y, par[currx][curry][0], par[currx][curry][1]);
+       await visualizePath(x, y, par[currx][curry][0], par[currx][curry][1], latency);
     }
-    await new Promise(resolve => setTimeout(resolve, 10));
+    if(latency) await new Promise(resolve => setTimeout(resolve, 10));
     // grid.childNodes[x].childNodes[y].style.background = "yellow";
     grid.childNodes[currx].childNodes[curry].classList.add("path");
 }
 
-async function visualizePathReverse(x, y, currx, curry, par) {
-    await new Promise(resolve => setTimeout(resolve, 10));
+async function visualizePathReverse(x, y, currx, curry, par, latency) {
+    if(latency) await new Promise(resolve => setTimeout(resolve, 10));
     grid.childNodes[currx].childNodes[curry].classList.add("path");
     if(x != currx || y != curry) {
-       await visualizePathReverse(x, y, par[currx][curry][0], par[currx][curry][1], par);
+       await visualizePathReverse(x, y, par[currx][curry][0], par[currx][curry][1], par, latency);
     }
     // grid.childNodes[x].childNodes[y].style.background = "yellow";
 }
@@ -291,7 +301,9 @@ async function bfs(x, y, distx, disty) {
     
 }
 
-async function bidirectional(x, y, distx, disty) {
+async function bidirectional(x, y, distx, disty, latency = true) {
+    lastRunAlgo = bidirectionalFn;
+    console.log(lastRunAlgo)
     let vis1 = [];
     par1 = [];
     for(let i=0;i<rowsNumber;i++) {
@@ -301,6 +313,7 @@ async function bidirectional(x, y, distx, disty) {
         //     vis1[i][j] = [];
         // }
     }
+    console.log(start, distx, disty)
     vis[x][y] = 1;
     // console.log(vis1);
     vis1[distx][disty] = 1;
@@ -311,7 +324,7 @@ async function bidirectional(x, y, distx, disty) {
     let queue1 = [];
     queue1.push([distx, disty]);
     while(queue.length || queue1.length) {
-        await new Promise(resolve => setTimeout(resolve, 0));
+        if(latency) await new Promise(resolve => setTimeout(resolve, 0));
         if(queue.length) {
             let front = queue.splice(0, 1);
             let x1 = front[0][0];
@@ -376,11 +389,19 @@ function drop(ev) {
                 if(grid.childNodes[i].childNodes[j] == ev.target) {
                     if(data === "location") {
                         end = [i, j];
+                        if(lastRunAlgo) {
+                            console.log(start[0], start[1], end[0], end[1], false)
+                            lastRunAlgo(start[0], start[1], end[0], end[1], false);
+                        }
                     }
                     else {
                         start = [i, j];
+                        if(lastRunAlgo) {
+                            console.log(start[0], start[1], end[0], end[1], false)
+                            lastRunAlgo(start[0], start[1], end[0], end[1], false);
+                        }
                     }
-                    resetGraph();
+                    // resetGraph();
                 }
             }
         }
