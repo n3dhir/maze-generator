@@ -2,6 +2,11 @@
     --color: #6125f9;
     --back-color: #fafafa;
     --walls: #1a0d4d;
+    --cellSize: 40px;
+    --cellMargin: 1px;
+    --wallHeight : 55px;
+    --wallWidth: 15px;
+    --path: linear-gradient(241deg, rgb(73 199 136) 0.1px, #25f9d2 0px, rgb(235 214 113 / 42%) 0.5px, #fff707);
   }
   
   * {
@@ -12,10 +17,12 @@
     user-select: none;
     color: var(--color, #c39a3b);
     background-color: var(--back-color, #212121);
+    
   }
   
   body {
     height: 100vh;
+    overflow: hidden;
   }
   
   .toggle {
@@ -130,9 +137,9 @@
         justify-content: center;
         align-items: center;
         background-color: var(--color, #c39a3b);
-        margin: 1px;
-        width: 40px;
-        height: 40px;
+        margin: var(--cellMargin, 1px);
+        width: var(--cellSize, 40px);
+        height: var(--cellSize, 40px);
         border-radius: 5px;
         font-size: 50px;
         /* border: 2px solid transparent; */
@@ -155,12 +162,12 @@
         position: absolute;
         z-index: 10;
         content: "";
-        width: 55px;
+        width: var(--wallHeight, 55px);
         background: var(--walls, #1a0d4d);
-        height: 15px;
+        height: var(--wallWidth, 15px);
         border-radius: 20px;
-        top: -9px;
-        left: -5px;
+        top: -7px;
+        left: 1px;
         margin-left: -6px;
         margin-right: -12px;
     }
@@ -168,12 +175,12 @@
         position: absolute;
         z-index: 10;
         content: "";
-        width: 15px;
+        width: var(--wallWidth, 15px);
         background: var(--walls, #1a0d4d);
-        height: 55px;
+        height: var(--wallHeight, 55px);
         border-radius: 20px;
-        top: -9px;
-        left: -11px;
+        top: -5px;
+        left: -6px;
         /* margin-left: -6px;
         margin-right: -12px; */
     }
@@ -190,12 +197,12 @@
 
     .visited {
       /* background: linear-gradient(241deg, rgb(73 199 136) 0.1px, #25f9d2 0px, rgb(235 124 113) 0.5px, #68d516) !important; */
-      background: linear-gradient(241deg, rgb(73 199 77) 0.1px, #8af925 0px, rgb(73 199 106) 0.5px, #16d5bb) !important;
+      background: linear-gradient(241deg, rgb(73 199 77) 0.1px, #8af925 0px, rgb(73 199 106) 0.5px, #16d5bb);
       /* background: linear-gradient(241deg, rgb(73 199 136) 0.1px, #0f0cbd 0px, rgb(113 235 184) 0.5px, #d5b516) !important; */
     }
     .path {
       /* background: linear-gradient(241deg, rgb(73 199 136) 0.1px, #25f9d2 0px, rgb(235 124 113) 0.5px, #68d516) !important; */
-      background: linear-gradient(241deg, rgb(73 199 136) 0.1px, #25f9d2 0px, rgb(235 214 113 / 42%) 0.5px, #fff707) !important;;
+      background: var(--path, "linear-gradient(241deg, rgb(73 199 136) 0.1px, #25f9d2 0px, rgb(235 124 113) 0.5px, #68d516)") !important;
       /* background: yellow !important; */
     }
     img {
